@@ -235,8 +235,8 @@ void *myrealloc(void *ptr, size_t size) {
 	if (!new_ptr) {
 		return NULL;
 	}
-	memcpy(new_ptr, ptr, block_ptr->info.size);
-	myfree(ptr);
+	memcpy(new_ptr, ptr, block_ptr->info.size); //copie size octets de ptr vers new_ptr
+	myfree(ptr); 
 	return new_ptr;
 }
 
@@ -246,7 +246,7 @@ void *mycalloc(size_t nb_elem, size_t elem_size) {
 	if(nb_elem == 0 || elem_size == 0){
 		return NULL;
 	}
-	
+
 	size_t size = nb_elem * elem_size; // Attention à l'overflow (pas vérifié ici)
 	void *ptr = mymalloc(size);
 	memset(ptr, 0, size); //met les données pointées par ptr à 0, jusqu'à une taille size
