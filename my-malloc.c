@@ -174,9 +174,11 @@ void *mymalloc(size_t size) {
 /* Fonction qui fusionne deux blocs qui se suivent si possible */
 void fusion(Header *block){
 	Header *next_block = block->info.next;
-	if ((get_ptr(block) + block->info.size) == next_block) {
-		block->info.size += HEADER_SIZE + next_block->info.size;
-		block->info.next = next_block->info.next;
+	if (next_block) {
+		if ((get_ptr(block) + block->info.size) == next_block) {
+			block->info.size += HEADER_SIZE + next_block->info.size;
+			block->info.next = next_block->info.next;
+		}
 	}
 }
 
@@ -253,7 +255,7 @@ void *mycalloc(size_t nb_elem, size_t elem_size) {
 	if (ptr){
 		memset(ptr, 0, size); //met les données pointées par ptr à 0, jusqu'à une taille size
 	}
-	
+
 	return ptr;
 }
 
