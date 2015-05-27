@@ -1,5 +1,6 @@
 test-malloc
 test-malloc-eg
+main
 
 # Object files
 *.o
