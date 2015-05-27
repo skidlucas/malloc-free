@@ -217,6 +217,7 @@ void myfree(void *ptr) {
 ** taille est plus petite. Si elle est plus grande, la mémoire ne sera pas initialisée. Si ptr est NULL, alors l'appel 
 ** est équivalent à malloc(size). Si size est égal à 0 et ptr est non NULL, alors l'appel est équivalent à free(ptr) */
 void *myrealloc(void *ptr, size_t size) {
+	printf("realloc");
 	if (!ptr) {
 		return mymalloc(size); // ptr == NULL donc realloc doit être équivalent à malloc(size)
 	}
@@ -249,7 +250,10 @@ void *mycalloc(size_t nb_elem, size_t elem_size) {
 
 	size_t size = nb_elem * elem_size; // Attention à l'overflow (pas vérifié ici)
 	void *ptr = mymalloc(size);
-	memset(ptr, 0, size); //met les données pointées par ptr à 0, jusqu'à une taille size
+	if (ptr){
+		memset(ptr, 0, size); //met les données pointées par ptr à 0, jusqu'à une taille size
+	}
+	
 	return ptr;
 }
 
