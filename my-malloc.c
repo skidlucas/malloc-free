@@ -77,7 +77,9 @@ Header *extend_heap(Header *last, size_t size) {
   	nb_sbrk += 1;
 
   	//debug
-  	printf("---->sbrk @%d, size=%d, next:%d\n", block, block->info.size, block->info.next);
+  	//printf("---->sbrk @%d, size=%d, next:%d\n", block, block->info.size, block->info.next);
+
+  	printf("---->sbrk(%d)\n", size);
 
   	
   	return block;
@@ -95,10 +97,8 @@ void split(Header *block, size_t size){
 	block->info.next = new_block;
 
 	//debug
-	printf("-------split------- \nusedblock @0x%d, size=%d, next->0x%d\n", block, block->info.size, block->info.next);
-	printf("freeblock @0x%d, size=%d, next->0x%d\n", new_block, new_block->info.size, new_block->info.next);
-
-
+	//printf("-------split------- \nusedblock @0x%d, size=%d, next->0x%d\n", block, block->info.size, block->info.next);
+	//printf("freeblock @0x%d, size=%d, next->0x%d\n", new_block, new_block->info.size, new_block->info.next);
 }
 
 /* Fonction qui supprime le bloc de la liste des blocs libres */
@@ -128,8 +128,9 @@ void remove_block(Header *block) {
 
 /* Fonction qui alloue de la mémoire */
 void *mymalloc(size_t size) {
+	printf("mymalloc(%d)\n", size);
+
 	Header *block;
-	printf("///////\nWe ask for mymalloc(%d)\n", size);
 
 	if (size <= 0) {
 		return NULL;
@@ -164,7 +165,7 @@ void *mymalloc(size_t size) {
 	}
 
 	//debug
-	printf("mymalloc in block @0x%d, size=%d, next->0x%d\n", block, block->info.size, block->info.next);
+	//printf("mymalloc in block @0x%d, size=%d, next->0x%d\n", block, block->info.size, block->info.next);
 
 	nb_alloc += 1;
 	remove_block(block); //enlève le bloc de la liste des blocs libres
@@ -196,7 +197,7 @@ void myfree(void *ptr) {
 			fusion(base); //fusion avec le suivant
 
 			//debug
-			printf("myfree in block @0x%d, size=%d, next->0x%d\n", block_ptr, block_ptr->info.size, block_ptr->info.next);
+			//printf("myfree in block @0x%d, size=%d, next->0x%d\n", block_ptr, block_ptr->info.size, block_ptr->info.next);
 
 			return;
 		}
@@ -204,6 +205,7 @@ void myfree(void *ptr) {
 		Header *block = base;
 		while (block->info.next && block->info.next < block_ptr) {
 			block = block->info.next;
+			//printf("bouclerealloc");
 		}
 
 		block_ptr->info.next = block->info.next;
@@ -211,14 +213,16 @@ void myfree(void *ptr) {
 		fusion(block_ptr); //fusion avec le suivant
 		fusion(block); //fusion avec le précédent
 	}
+
 	//debug
-	printf("myfree in block @0x%d, size=%d, next->0x%d\n", block_ptr, block_ptr->info.size, block_ptr->info.next);
+	//printf("myfree in block @0x%d, size=%d, next->0x%d\n", block_ptr, block_ptr->info.size, block_ptr->info.next);
 }
 
 /* Fonction qui change la taille du bloc pointé par ptr par la taille size. Le contenu n'est pas changé si la nouvelle
 ** taille est plus petite. Si elle est plus grande, la mémoire ne sera pas initialisée. Si ptr est NULL, alors l'appel 
 ** est équivalent à malloc(size). Si size est égal à 0 et ptr est non NULL, alors l'appel est équivalent à free(ptr) */
-// FONCTION NON TESTEE
+
+// ERREUR DANS LE TEST ./test-malloc 10 100 : boucle infinie
 void *myrealloc(void *ptr, size_t size) {
 	printf("realloc");
 	if (!ptr) {
@@ -246,7 +250,6 @@ void *myrealloc(void *ptr, size_t size) {
 
 /* Fonction qui alloue la mémoire nécessaire pour un tableau de nb_elem éléments de taille elem_size octets, et renvoie un pointeur 
 ** vers la mémoire allouée. Cette zone est remplie avec des zéros. Si nb_elem ou elem_size vaut 0, calloc() renvoie NULL. */
-// FONCTION NON TESTEE
 void *mycalloc(size_t nb_elem, size_t elem_size) {
 	if(nb_elem == 0 || elem_size == 0){
 		return NULL;
@@ -271,7 +274,7 @@ void mymalloc_infos(char *msg) {
 	/* Ca pourrait être pas mal d'afficher ici les blocs dans la liste libre */
 	if (base)
     {
-    	fprintf(stderr, "Liste of free blocks:\n");
+    	fprintf(stderr, "List of free blocks:\n");
         for (Header *block = base; block; block = block->info.next)
         {
             fprintf(stderr, "Block @0x%d (size=%d, next->0x%d)\n", block, block->info.size, block->info.next);
