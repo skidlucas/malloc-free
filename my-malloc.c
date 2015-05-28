@@ -129,7 +129,7 @@ void remove_block(Header *block) {
 /* Fonction qui alloue de la mémoire */
 void *mymalloc(size_t size) {
 	Header *block;
-	fprintf(stderr, "///////\nWe ask for mymalloc(%d)\n", size);
+	printf("///////\nWe ask for mymalloc(%d)\n", size);
 
 	if (size <= 0) {
 		return NULL;
@@ -157,7 +157,7 @@ void *mymalloc(size_t size) {
 		} 
 
 		if (block) { //on a trouvé un bloc libre
-		  	if ((block->info.size - size) >= (HEADER_SIZE + 4)){ //si la taille du bloc est plus grande qu'un header + 4 octets (bloc minimal)
+		  	if (block->info.size >= (HEADER_SIZE + size)){ //si la taille du bloc est plus grande qu'un header + size octets
 				split(block, size); //alors on split
 			}
 		}
@@ -218,6 +218,7 @@ void myfree(void *ptr) {
 /* Fonction qui change la taille du bloc pointé par ptr par la taille size. Le contenu n'est pas changé si la nouvelle
 ** taille est plus petite. Si elle est plus grande, la mémoire ne sera pas initialisée. Si ptr est NULL, alors l'appel 
 ** est équivalent à malloc(size). Si size est égal à 0 et ptr est non NULL, alors l'appel est équivalent à free(ptr) */
+// FONCTION NON TESTEE
 void *myrealloc(void *ptr, size_t size) {
 	printf("realloc");
 	if (!ptr) {
@@ -238,13 +239,14 @@ void *myrealloc(void *ptr, size_t size) {
 	if (!new_ptr) {
 		return NULL;
 	}
-	memcpy(new_ptr, ptr, block_ptr->info.size); //copie size octets de ptr vers new_ptr
+	memcpy(new_ptr, ptr, block_ptr->info.size); //copie "size" octets de ptr vers new_ptr
 	myfree(ptr); 
 	return new_ptr;
 }
 
 /* Fonction qui alloue la mémoire nécessaire pour un tableau de nb_elem éléments de taille elem_size octets, et renvoie un pointeur 
 ** vers la mémoire allouée. Cette zone est remplie avec des zéros. Si nb_elem ou elem_size vaut 0, calloc() renvoie NULL. */
+// FONCTION NON TESTEE
 void *mycalloc(size_t nb_elem, size_t elem_size) {
 	if(nb_elem == 0 || elem_size == 0){
 		return NULL;
@@ -253,7 +255,7 @@ void *mycalloc(size_t nb_elem, size_t elem_size) {
 	size_t size = nb_elem * elem_size; // Attention à l'overflow (pas vérifié ici)
 	void *ptr = mymalloc(size);
 	if (ptr){
-		memset(ptr, 0, size); //met les données pointées par ptr à 0, jusqu'à une taille size
+		memset(ptr, 0, size); //met les données pointées par ptr à 0, jusqu'à "size"
 	}
 
 	return ptr;
