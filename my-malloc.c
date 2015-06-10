@@ -3,7 +3,7 @@
  *
  * Implémentation first-fit pour malloc
  *
- *           Author: Lucas Martinez
+ *           Author: Lucas Martinez, Nicolas HORY
  *    		 Version: 26/06/2015
  */
 
@@ -28,9 +28,9 @@ typedef union header { // Header de bloc
 
 void *sbrk(intptr_t increment);
 static Header *base = NULL;				// liste vide pour commencer
-static int nb_alloc   = 0;              /* Nombre de fois où on alloué     */
-static int nb_dealloc = 0;              /* Nombre de fois où on désalloué  */
-static int nb_sbrk    = 0;              /* nombre de fois où a appelé sbrk */
+static int nb_alloc   = 0;              /* Nombre de fois où on a alloué     */
+static int nb_dealloc = 0;              /* Nombre de fois où on a désalloué  */
+static int nb_sbrk    = 0;              /* Nombre de fois où on a appelé sbrk */
 
 /* Fonction qui retourne un pointeur sur les données à partir du bloc */
 int get_ptr(Header *block){
@@ -203,9 +203,8 @@ void myfree(void *ptr) {
 		}
 
 		Header *block = base;
-		while (block->info.next && block->info.next < block_ptr) {
+		while (block->info.next && block->info.next != block && block->info.next < block_ptr) {
 			block = block->info.next;
-			//printf("bouclerealloc");
 		}
 
 		block_ptr->info.next = block->info.next;
@@ -222,30 +221,29 @@ void myfree(void *ptr) {
 ** taille est plus petite. Si elle est plus grande, la mémoire ne sera pas initialisée. Si ptr est NULL, alors l'appel 
 ** est équivalent à malloc(size). Si size est égal à 0 et ptr est non NULL, alors l'appel est équivalent à free(ptr) */
 
-// ERREUR DANS LE TEST ./test-malloc 10 100 : boucle infinie
+// ERREUR DANS LE TEST ./test-malloc 10 100 : boucle infinie, Résolu
 void *myrealloc(void *ptr, size_t size) {
-	printf("realloc");
+	printf("myrealloc(%d)\n", size);
 	if (!ptr) {
 		return mymalloc(size); // ptr == NULL donc realloc doit être équivalent à malloc(size)
 	}
-
-	Header *block_ptr = get_block(ptr);
+    	nb_alloc+=1;
+	Header *block_ptr = get_block(ptr); // Récupère le bloc souhaité
 	if (block_ptr->info.size >= size) { //si le bloc est plus grand que la nouvelle taille
 		if ((block_ptr->info.size - size) >= (HEADER_SIZE + 4)){ //si la taille du bloc est plus grande qu'un header + 4 octets (bloc minimal)
-			split(block_ptr, size); //alors on split
+			return mymalloc(size);
 		}
 		return ptr;
 	}
 
 	//sinon il faut allouer un nouvel espace mémoire, copier les données et libérer l'ancien bloc
-	void *new_ptr;
-	new_ptr = mymalloc(size);
+	void *new_ptr = mymalloc(size);
 	if (!new_ptr) {
 		return NULL;
 	}
 	memcpy(new_ptr, ptr, block_ptr->info.size); //copie "size" octets de ptr vers new_ptr
-	myfree(ptr); 
-	return new_ptr;
+    //myfree(ptr); 
+    return new_ptr;
 }
 
 /* Fonction qui alloue la mémoire nécessaire pour un tableau de nb_elem éléments de taille elem_size octets, et renvoie un pointeur 
@@ -275,7 +273,7 @@ void mymalloc_infos(char *msg) {
 	if (base)
     {
     	fprintf(stderr, "List of free blocks:\n");
-        for (Header *block = base; block; block = block->info.next)
+        for (Header *block = base; block && block != block->info.next; block = block->info.next)
         {
             fprintf(stderr, "Block @0x%d (size=%d, next->0x%d)\n", block, block->info.size, block->info.next);
         }
