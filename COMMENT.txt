@@ -1,0 +1,5 @@
+Les membres du binôme sont Lucas Martinez et Nicolas HORY, du groupe 4 de SI3.
+
+Commentaires sur le code rendu:
+
+Nous avons mis en commentaires dans le test-malloc.c les utilisations de realloc et de calloc, il suffit de les décommenter pour pouvoir tester les différentes fonctions.
