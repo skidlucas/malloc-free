@@ -35,10 +35,10 @@ static int nb_dealloc = 0;              /* Nombre de fois où on a désalloué  
 static int nb_sbrk    = 0;              /* Nombre de fois où on a appelé sbrk */
 
 /* Fonction qui retourne un pointeur sur les données à partir du bloc */
-int get_ptr(Header *block){
+void *get_ptr(Header *block){
     int addr = (intptr_t)block;
     addr += HEADER_SIZE;
-    return addr;
+    return (void *)(intptr_t)addr; // pour enlever les warnings 
 }
 
 /* Fonction qui retourne le bloc contenant les données pointées par ptr */
